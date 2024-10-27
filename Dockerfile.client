@@ -1,0 +1,12 @@
+FROM golang:1.22
+
+WORKDIR /app
+
+# Copy client code into the container
+COPY client.go .
+
+# Compile the Go program
+RUN go build -o client client.go
+
+# Run the client
+CMD ["./client"]

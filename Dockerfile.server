@@ -1,0 +1,15 @@
+FROM golang:1.22
+
+WORKDIR /app
+
+# Copy server code into the container
+COPY server.go .
+
+# Compile the Go program
+RUN go build -o server server.go
+
+# Expose port 8080
+EXPOSE 8080
+
+# Run the server
+CMD ["./server"]
