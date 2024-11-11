@@ -10,6 +10,14 @@ run: run-server run-client
 test:
 	go test -v ./...
 
+.PHONY: install-lint
+install-lint:
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+
+.PHONY: lint
+lint: install-lint
+	golangci-lint run ./...
+
 .PHONY: build-server
 build-server:
 	go build -o bin/server cmd/server/main.go

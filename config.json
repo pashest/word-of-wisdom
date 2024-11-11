@@ -1,4 +1,5 @@
 {
+  "parallel_connections_threshold": 2,
   "quotes": [
     "Do not dwell in the past, do not dream of the future, concentrate the mind on the present moment.",
     "The only limit to our realization of tomorrow is our doubts of today.",
@@ -6,5 +7,37 @@
     "Life is what happens when you're busy making other plans.",
     "Do something that interests you and do it to the absolute best of your ability. With this recipe, whatever your limitations, you will almost certainly still do better than anyone else.",
     "Always be ready for the worst."
-  ]
+  ],
+  "equihash": {
+    "difficulties": [
+      {
+        "n": 40,
+        "k": 2
+      },
+      {
+        "n": 60,
+        "k": 3
+      },
+      {
+        "n": 70,
+        "k": 3
+      },
+      {
+        "n": 80,
+        "k": 3
+      },
+      {
+        "n": 80,
+        "k": 4
+      },
+      {
+        "n": 90,
+        "k": 4
+      },
+      {
+        "n": 90,
+        "k": 5
+      }
+    ]
+  }
 }
