@@ -123,7 +123,7 @@ func (eq *Equihash) resolveCollisions(store bool) {
 						solutionInputs := eq.resolveTree(newFork)
 						eq.solutions = append(
 							eq.solutions,
-							Proof{n: eq.n, k: eq.k, seed: eq.seed, nonce: eq.nonce, inputs: solutionInputs},
+							Proof{N: eq.n, K: eq.k, Seed: eq.seed, Nonce: eq.nonce, Inputs: solutionInputs},
 						)
 					}
 				} else {
@@ -174,7 +174,7 @@ func (eq *Equihash) FindProof() Proof {
 			eq.resolveCollisions(toStore)
 		}
 		for i := range eq.solutions {
-			vec := eq.solutions[i].inputs
+			vec := eq.solutions[i].Inputs
 			sort.Slice(vec, func(i, j int) bool { return vec[i] < vec[j] })
 			dup := false
 			for k := range vec[:len(vec)-1] {
@@ -187,5 +187,5 @@ func (eq *Equihash) FindProof() Proof {
 			}
 		}
 	}
-	return Proof{n: eq.n, k: eq.k, seed: eq.seed, nonce: eq.nonce, inputs: []uint32{}}
+	return Proof{N: eq.n, K: eq.k, Seed: eq.seed, Nonce: eq.nonce, Inputs: []uint32{}}
 }

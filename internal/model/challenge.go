@@ -11,10 +11,6 @@ type Difficulty struct {
 
 type ChallengeAlgorithm string
 
-const (
-	EquihashAlgorithm ChallengeAlgorithm = "equihash"
-)
-
 type Challenge struct {
 	Algorithm  ChallengeAlgorithm
 	Difficulty Difficulty

@@ -73,7 +73,7 @@ func (s *Server) Run(ctx context.Context) error {
 		}
 
 		s.parallelConnectionNum.Add(1)
-		go s.handleConnection(ctx, conn)
+		go s.handleConnection(conn)
 	}
 }
 
@@ -114,12 +114,16 @@ func (s *Server) controlDifficulty() {
 	}
 }
 
-func (s *Server) handleConnection(ctx context.Context, conn net.Conn) {
+func (s *Server) handleConnection(conn net.Conn) {
 	defer func() {
 		conn.Close()
 		s.parallelConnectionNum.Add(-1)
 	}()
 
+	err := conn.SetDeadline(time.Now().Add(20 * time.Second))
+	if err != nil {
+		log.Error().Err(err).Msg("failed to set deadline")
+	}
 	reader := bufio.NewReader(conn)
 
 	for {
@@ -164,17 +168,17 @@ func (s *Server) ProcessRequest(msgStr string) (*model.Message, error) {
 		currentDifficulty := s.algorithmSetting.GetDifficulty()
 		s.rwMu.RUnlock()
 
-		challenge := model.NewChallenge(model.EquihashAlgorithm, currentDifficulty)
+		challenge := model.NewChallenge(equihash.EquihashAlgorithm, currentDifficulty)
 
 		reqID := utils.GetRandomString(20)
-		s.requestCache.Set(reqID)
+		s.requestCache.Set(reqID, &challenge)
 		if err != nil {
 			return nil, fmt.Errorf("err add rand to cache: %w", err)
 		}
 
 		challengeMarshaled, err := json.Marshal(challenge)
 		if err != nil {
-			return nil, fmt.Errorf("err marshal hashcash: %v", err)
+			return nil, fmt.Errorf("err marshal challenge: %v", err)
 		}
 		msg := model.Message{
 			Type:      model.ResponseChallenge,
@@ -189,24 +193,33 @@ func (s *Server) ProcessRequest(msgStr string) (*model.Message, error) {
 		if err != nil {
 			return nil, fmt.Errorf("err unmarshal proof: %v", err)
 		}
-		if ok := proof.ValidateSolution(); !ok {
-			return nil, fmt.Errorf("invalid proof")
-		}
 
-		exists := s.requestCache.Get(reqID)
-		if !exists {
-			return nil, fmt.Errorf("challenge expired or not sent")
+		ch, exists := s.requestCache.Get(reqID)
+		if !exists || ch == nil {
+			return &model.Message{
+				Type:      model.FailedResponseResource,
+				RequestID: reqID,
+				Payload:   "challenge expired or not sent",
+			}, nil
 		}
 		s.requestCache.Delete(reqID)
 
-		msg := model.Message{
-			Type:      model.ResponseResource,
-			RequestID: reqID,
-			Payload:   s.quoteService.GetRandomQuote(),
+		if ok := proof.ValidateChallenge(*ch); !ok {
+			return &model.Message{
+				Type:      model.FailedResponseResource,
+				RequestID: reqID,
+				Payload:   "invalid proof",
+			}, nil
 		}
 
-		return &msg, nil
+		return &model.Message{
+			Type:      model.SuccessResponseResource,
+			RequestID: reqID,
+			Payload:   s.quoteService.GetRandomQuote(),
+		}, nil
 	default:
-		return nil, fmt.Errorf("unknown type")
+		return &model.Message{
+			Type: model.Unknown,
+		}, nil
 	}
 }

@@ -10,7 +10,8 @@ const (
 	RequestChallenge
 	ResponseChallenge
 	RequestResource
-	ResponseResource
+	SuccessResponseResource
+	FailedResponseResource
 )
 
 // Message - message struct for both server and client

@@ -7,8 +7,8 @@ type quoteService interface {
 }
 
 type requestCache interface {
-	Get(key string) bool
-	Set(key string)
+	Get(key string) (*model.Challenge, bool)
+	Set(key string, challenge *model.Challenge)
 	Delete(key string)
 }
 

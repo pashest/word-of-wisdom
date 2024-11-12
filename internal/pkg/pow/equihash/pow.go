@@ -4,15 +4,20 @@ import (
 	"encoding/binary"
 
 	"github.com/dchest/blake2b"
+	"github.com/pashest/word-of-wisdom/internal/model"
 	"github.com/pashest/word-of-wisdom/internal/pkg/utils"
 )
 
+const (
+	EquihashAlgorithm model.ChallengeAlgorithm = "equihash"
+)
+
 type Proof struct {
-	n      uint32
-	k      uint32
-	seed   [seedLength]uint32
-	nonce  uint32
-	inputs []uint32
+	N      uint32             `json:"n"`
+	K      uint32             `json:"k"`
+	Seed   [seedLength]uint32 `json:"seed"`
+	Nonce  uint32             `json:"nonce"`
+	Inputs []uint32           `json:"inputs"`
 }
 
 func NewProof(
@@ -37,40 +42,51 @@ func NewProof(
 	}
 
 	return &Proof{
-		n:      uint32(n),
-		k:      uint32(k),
-		seed:   s,
-		nonce:  uint32(nonce),
-		inputs: inp,
+		N:      uint32(n),
+		K:      uint32(k),
+		Seed:   s,
+		Nonce:  uint32(nonce),
+		Inputs: inp,
 	}
 }
 
+func (p *Proof) ValidateChallenge(ch model.Challenge) bool {
+	if ch.Algorithm != EquihashAlgorithm {
+		return false
+	}
+	eq := NewEquihash(ch.Difficulty, ch.Input)
+	if eq.seed == p.Seed && eq.n == p.N && eq.k == p.K {
+		return p.ValidateSolution()
+	}
+	return false
+}
+
 func (p *Proof) GetInputsBytes() []byte {
-	return utils.Uint32ArrayToBytes(p.inputs, binary.LittleEndian)
+	return utils.Uint32ArrayToBytes(p.Inputs, binary.LittleEndian)
 }
 
 func (p *Proof) ValidateSolution() bool {
 	input := make([]uint32, seedLength+2)
-	copy(input[:seedLength], p.seed[:])
-	input[seedLength] = p.nonce
+	copy(input[:seedLength], p.Seed[:])
+	input[seedLength] = p.Nonce
 	buf := make([]uint32, maxN/4)
-	blocks := make([]uint32, p.k+1)
+	blocks := make([]uint32, p.K+1)
 
 	h := blake2b.New256()
 
-	if len(p.inputs) == 0 {
+	if len(p.Inputs) == 0 {
 		return false
 	}
 
-	for i := range p.inputs {
-		input[seedLength+1] = uint32(p.inputs[i])
+	for i := range p.Inputs {
+		input[seedLength+1] = uint32(p.Inputs[i])
 
 		h.Reset()
 		h.Write(utils.Uint32ArrayToBytes(input[:], binary.LittleEndian))
 		buf = utils.BytesToUint32Array(h.Sum(nil), binary.LittleEndian)
 
-		for j := uint32(0); j < (p.k + 1); j++ {
-			blocks[j] ^= buf[j] >> (32 - p.n/(p.k+1))
+		for j := uint32(0); j < (p.K + 1); j++ {
+			blocks[j] ^= buf[j] >> (32 - p.N/(p.K+1))
 		}
 	}
 

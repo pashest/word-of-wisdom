@@ -13,7 +13,7 @@ func ParseMessage(str string) (*model.Message, error) {
 	str = strings.TrimSpace(str)
 	var msgType int
 	parts := strings.Split(str, "|")
-	if len(parts) < 1 || len(parts) > 3 { // only 1 or 3 parts allowed
+	if !(len(parts) == 1 || len(parts) == 3) { // only 1 or 3 parts allowed
 		return nil, fmt.Errorf("message doesn't match protocol")
 	}
 	// try to parse header
