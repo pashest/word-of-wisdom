@@ -7,6 +7,7 @@ import (
 	"io"
 	"net"
 
+	"github.com/pashest/word-of-wisdom/config"
 	"github.com/pashest/word-of-wisdom/internal/model"
 	"github.com/pashest/word-of-wisdom/internal/pkg/pow/equihash"
 	"github.com/pashest/word-of-wisdom/internal/pkg/utils"
@@ -14,7 +15,13 @@ import (
 )
 
 func main() {
-	conn, err := net.Dial("tcp", "localhost:8080")
+	cfg, err := config.GetConfig()
+	if err != nil {
+		log.Fatal().Err(err)
+		return
+	}
+	address := fmt.Sprintf("%s:%d", cfg.TcpServer.ServerHost, cfg.TcpServer.ServerPort)
+	conn, err := net.Dial("tcp", address)
 	if err != nil {
 		log.Fatal().Err(err)
 		return

@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    environment:
+      SERVER_HOST: "0.0.0.0"
+      SERVER_PORT: '12012'
+    ports:
+      - '12012:12012'
+    restart: 'no'
+
+
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+    environment:
+      SERVER_HOST: "server"
+      SERVER_PORT: '12012'
+    restart: 'no'
+    depends_on:
+      - server

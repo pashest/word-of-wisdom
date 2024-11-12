@@ -1,12 +1,14 @@
-FROM golang:1.22
+FROM golang:alpine as builder
 
-WORKDIR /app
+COPY . /app
 
-# Copy client code into the container
-COPY client.go .
+WORKDIR /app/cmd/client
 
-# Compile the Go program
-RUN go build -o client client.go
+RUN go build -o client
 
-# Run the client
-CMD ["./client"]
+FROM scratch
+
+COPY --from=builder /app/cmd/client/client /app/main
+COPY --from=builder /app/config.json /app/config.json
+
+ENTRYPOINT ["/app/main"]

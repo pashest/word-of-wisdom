@@ -1,5 +1,6 @@
 # word-of-wisdom
 
+TCP Server protected from DDoS attacks with Equihash based Proof of Work algorithm.
 ## Proof of Work algorithm
 
 I decided to use Equihash based Proof of work algorithm. Equihash is memory-bound algorithm, and it's optimized for 
@@ -8,4 +9,4 @@ hardware improvements are expected to have a lesser impact on algorithm performa
 powerful ASIC farm miners in attacks.
 
 Equihash's availability and resistance to specialized hardware make it a suitable and effective choice for protection 
-against DDOS attacks.
+against DDoS attacks.

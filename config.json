@@ -1,5 +1,9 @@
 {
-  "parallel_connections_threshold": 2,
+  "tcp_server": {
+    "server_host": "localhost",
+    "server_port": 12012,
+    "parallel_connections_threshold": 2
+  },
   "quotes": [
     "Do not dwell in the past, do not dream of the future, concentrate the mind on the present moment.",
     "The only limit to our realization of tomorrow is our doubts of today.",

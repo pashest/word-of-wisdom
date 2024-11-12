@@ -42,7 +42,7 @@ func NewServer(cfg *config.Config,
 	return &Server{
 		cfg:                         cfg,
 		shutdownCh:                  make(chan struct{}),
-		parallelConnectionThreshold: cfg.ParallelConnectionsThreshold,
+		parallelConnectionThreshold: cfg.TcpServer.ParallelConnectionsThreshold,
 		requestCache:                requestCache,
 		quoteService:                quoteService,
 		algorithmSetting:            algorithmSetting,
@@ -51,7 +51,8 @@ func NewServer(cfg *config.Config,
 
 func (s *Server) Run(ctx context.Context) error {
 	var err error
-	s.listener, err = net.Listen("tcp", ":8080")
+	address := fmt.Sprintf("%s:%d", s.cfg.TcpServer.ServerHost, s.cfg.TcpServer.ServerPort)
+	s.listener, err = net.Listen("tcp", address)
 	if err != nil {
 		return errors.Wrap(err, "failed to listen")
 	}

@@ -1,15 +1,18 @@
-FROM golang:1.22
+FROM golang:alpine as builder
 
-WORKDIR /app
+COPY . /app
 
-# Copy server code into the container
-COPY server.go .
+WORKDIR /app/cmd/server
 
-# Compile the Go program
-RUN go build -o server server.go
+RUN go mod download
 
-# Expose port 8080
-EXPOSE 8080
+RUN go build -o server
 
-# Run the server
-CMD ["./server"]
+FROM scratch
+
+COPY --from=builder /app/cmd/server/server /app/main
+COPY --from=builder /app/config.json /app/config.json
+
+EXPOSE 12012
+
+ENTRYPOINT ["/app/main"]
