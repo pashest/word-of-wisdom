@@ -1,6 +1,12 @@
 # word-of-wisdom
 
 TCP Server protected from DDoS attacks with Equihash based Proof of Work algorithm.
+
+## Start server and client by docker-compose:
+```
+make start
+```
+
 ## Proof of Work algorithm
 
 I decided to use Equihash based Proof of work algorithm. Equihash is memory-bound algorithm, and it's optimized for 

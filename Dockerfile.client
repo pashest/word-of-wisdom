@@ -1,14 +1,15 @@
-FROM golang:alpine as builder
+FROM golang:1.22-alpine as builder
 
 COPY . /app
 
-WORKDIR /app/cmd/client
+WORKDIR /app
 
-RUN go build -o client
+RUN go mod download
+RUN GO111MODULE=on CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o client ./cmd/client/main.go
 
 FROM scratch
 
-COPY --from=builder /app/cmd/client/client /app/main
+COPY --from=builder /app/client /app/main
 COPY --from=builder /app/config.json /app/config.json
 
 ENTRYPOINT ["/app/main"]
